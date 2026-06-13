@@ -3,7 +3,7 @@
 ## Keys
 - [x] Key selector — let user choose which key to drill in
 - [x] Add all 12 major keys to the data model (currently hardcoded to G)
-- [ ] Random key button — pick a key at random for the session
+- [x] Random key — random key on page load + "Random Key" button to re-randomize
 
 ## Practice Modes
 - [x] Fretboard mode — highlight a fret/string position, ask "what Nashville number is this?"

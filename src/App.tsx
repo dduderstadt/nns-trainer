@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, JSX } from 'react';
-import { type ScaleNumber, type FretPosition, type KeyName, ALL_KEYS, computeDiatonicPositions } from './music';
+import { type ScaleNumber, type FretPosition, type KeyName, ALL_KEYS, KEY_NAMES, computeDiatonicPositions } from './music';
 import Fretboard from './Fretboard';
 import KeySelector from './KeySelector';
 
@@ -104,9 +104,10 @@ export default function App(): JSX.Element | null {
   const retryQueueRef = useRef<RetryItem[]>([]);
   const questionCountRef = useRef<number>(0);
   const modeRef = useRef<Mode>('flashcard');
-  const selectedKeyRef = useRef<KeyName>('G');
+  const initialKey: KeyName = KEY_NAMES[Math.floor(Math.random() * KEY_NAMES.length)];
+  const selectedKeyRef = useRef<KeyName>(initialKey);
 
-  const [selectedKey, setSelectedKey] = useState<KeyName>('G');
+  const [selectedKey, setSelectedKey] = useState<KeyName>(initialKey);
   const [mode, setMode] = useState<Mode>('flashcard');
   const [question, setQuestion] = useState<Question | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
@@ -216,6 +217,14 @@ export default function App(): JSX.Element | null {
           <span className="text-gray-400 text-sm font-medium">{answered}/{SESSION_LENGTH}</span>
         </div>
         <KeySelector currentKey={selectedKey} onSelect={handleKeySwitch} />
+        <div className="flex justify-center py-3">
+          <button
+            className="w-1/3 py-1.5 text-sm font-medium text-blue-400 bg-blue-950 hover:bg-blue-900 rounded-lg transition-colors cursor-pointer"
+            onClick={() => { handleKeySwitch(KEY_NAMES[Math.floor(Math.random() * KEY_NAMES.length)]); }}
+          >
+            Random Key
+          </button>
+        </div>
         <div className="flex">
           <button
             className={`flex-1 py-2 text-sm font-medium transition-colors ${mode === 'flashcard' ? 'text-white border-b-2 border-white' : 'text-gray-500'}`}
