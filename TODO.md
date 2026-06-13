@@ -7,15 +7,17 @@
 
 ## Practice Modes
 - [x] Fretboard mode — highlight a fret/string position, ask "what Nashville number is this?"
+- [ ] Fretboard note identification — shown a fret position, ask "what note is this?" (answer is the note name e.g. F# or Bb, independent of key context)
 - [ ] Chord chart reader mode — display a number chart (e.g. 1-4-5-1), tap each number to reveal the note name
 
 ## Input
 - [ ] Text input toggle — let user type the answer instead of using multiple choice buttons
 
 ## Progress & Stats
-- [ ] Persist session stats to localStorage (accuracy per key, accuracy per scale degree)
-- [ ] Streak counter shown during a session
+- [x] Persist session stats to localStorage (accuracy per key, accuracy per scale degree)
+- [x] Streak counter — consecutive passing sessions (≥7/10), shown on results screen
 - [ ] Highlight weak spots — surface which numbers or keys have the lowest accuracy over time
+- [ ] Stats dashboard — dedicated page showing accuracy per key, per scale degree, and streak history
 
 ## Difficulty
 - [ ] Start with "guitar player's keys" (G, D, A, E, C) and unlock others as accuracy improves

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, JSX } from 'react';
 import { type ScaleNumber, type FretPosition, type KeyName, ALL_KEYS, KEY_NAMES, computeDiatonicPositions } from './music';
+import { type QuestionResult, type PersistentStats, loadStats, updateStats, saveStats } from './stats';
 import Fretboard from './Fretboard';
 import KeySelector from './KeySelector';
 
@@ -17,11 +18,6 @@ interface RetryItem {
   addedAt: number;
 }
 
-interface QuestionResult {
-  number: ScaleNumber;
-  correct: boolean;
-}
-
 interface BreakdownRow {
   number: ScaleNumber;
   attempts: number;
@@ -29,6 +25,7 @@ interface BreakdownRow {
 }
 
 const SESSION_LENGTH: number = 10;
+const PASSING_THRESHOLD: number = 7;
 
 function shuffle<T>(arr: T[]): T[] {
   const a: T[] = [...arr];
@@ -51,7 +48,7 @@ function buildFretboardQuestion(number: ScaleNumber): Question {
   return { number, choices, correctChoice: String(number) };
 }
 
-function Results({ results, onRestart, scale }: { results: QuestionResult[]; onRestart: () => void; scale: Record<ScaleNumber, string> }): JSX.Element {
+function Results({ results, onRestart, scale, streak }: { results: QuestionResult[]; onRestart: () => void; scale: Record<ScaleNumber, string>; streak: number }): JSX.Element {
   const correct: number = results.filter((r: QuestionResult) => r.correct).length;
   const missedNumbers: number[] = [...new Set(results.filter((r: QuestionResult) => !r.correct).map((r: QuestionResult) => r.number))].sort();
 
@@ -75,6 +72,10 @@ function Results({ results, onRestart, scale }: { results: QuestionResult[]; onR
           Missed: {missedNumbers.join(', ')}
         </p>
       )}
+
+      <p className="text-gray-400 text-sm">
+        {streak > 0 ? `${streak} session streak` : 'Streak: 0'}
+      </p>
 
       <div className="w-full max-w-xs border border-gray-800 rounded-xl overflow-hidden">
         {breakdown.map((row: BreakdownRow) => (
@@ -106,6 +107,7 @@ export default function App(): JSX.Element | null {
   const modeRef = useRef<Mode>('flashcard');
   const initialKey: KeyName = KEY_NAMES[Math.floor(Math.random() * KEY_NAMES.length)];
   const selectedKeyRef = useRef<KeyName>(initialKey);
+  const statsRef = useRef<PersistentStats>(loadStats());
 
   const [selectedKey, setSelectedKey] = useState<KeyName>(initialKey);
   const [mode, setMode] = useState<Mode>('flashcard');
@@ -115,9 +117,15 @@ export default function App(): JSX.Element | null {
   const [results, setResults] = useState<QuestionResult[]>([]);
   const [sessionOver, setSessionOver] = useState<boolean>(false);
   const [highlight, setHighlight] = useState<FretPosition | null>(null);
+  const [stats, setStats] = useState<PersistentStats>(statsRef.current);
 
   function advance(currentResults: QuestionResult[]): void {
     if (currentResults.length >= SESSION_LENGTH) {
+      const passed: boolean = currentResults.filter((r: QuestionResult) => r.correct).length >= PASSING_THRESHOLD;
+      const updated: PersistentStats = updateStats(statsRef.current, selectedKeyRef.current, currentResults, passed);
+      saveStats(updated);
+      statsRef.current = updated;
+      setStats(updated);
       setSessionOver(true);
       return;
     }
@@ -200,7 +208,7 @@ export default function App(): JSX.Element | null {
   }
 
   if (sessionOver) {
-    return <Results results={results} onRestart={resetSession} scale={ALL_KEYS[selectedKey]} />;
+    return <Results results={results} onRestart={resetSession} scale={ALL_KEYS[selectedKey]} streak={stats.streak} />;
   }
 
   if (!question) {
