@@ -6,7 +6,7 @@
 - [ ] Random key button — pick a key at random for the session
 
 ## Practice Modes
-- [ ] Fretboard mode — highlight a fret/string position, ask "what Nashville number is this?"
+- [x] Fretboard mode — highlight a fret/string position, ask "what Nashville number is this?"
 - [ ] Chord chart reader mode — display a number chart (e.g. 1-4-5-1), tap each number to reveal the note name
 
 ## Input
