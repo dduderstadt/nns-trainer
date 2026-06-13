@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, JSX } from 'react';
 import { type ScaleNumber, type FretPosition, SCALE, KEY, DIATONIC_POSITIONS } from './music';
 import Fretboard from './Fretboard';
 
@@ -21,37 +21,43 @@ interface QuestionResult {
   correct: boolean;
 }
 
-const SESSION_LENGTH = 10;
+interface BreakdownRow {
+  number: ScaleNumber;
+  attempts: number;
+  correct: number;
+}
+
+const SESSION_LENGTH: number = 10;
 
 function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+  const a: T[] = [...arr];
+  for (let i: number = a.length - 1; i > 0; i--) {
+    const j: number = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
 }
 
 function buildFlashcardQuestion(number: ScaleNumber): Question {
-  const correct = SCALE[number];
-  const others = shuffle(Object.values(SCALE).filter(n => n !== correct)).slice(0, 3);
+  const correct: string = SCALE[number];
+  const others: string[] = shuffle(Object.values(SCALE).filter((n: string) => n !== correct)).slice(0, 3);
   return { number, choices: shuffle([correct, ...others]), correctChoice: correct };
 }
 
 function buildFretboardQuestion(number: ScaleNumber): Question {
-  const others = shuffle(([1, 2, 3, 4, 5, 6, 7] as ScaleNumber[]).filter(n => n !== number)).slice(0, 3);
-  const choices = shuffle([number, ...others]).map(String);
+  const others: ScaleNumber[] = shuffle(([1, 2, 3, 4, 5, 6, 7] as ScaleNumber[]).filter((n: ScaleNumber) => n !== number)).slice(0, 3);
+  const choices: string[] = shuffle([number, ...others]).map(String);
   return { number, choices, correctChoice: String(number) };
 }
 
-function Results({ results, onRestart }: { results: QuestionResult[]; onRestart: () => void }) {
-  const correct = results.filter(r => r.correct).length;
-  const missedNumbers = [...new Set(results.filter(r => !r.correct).map(r => r.number))].sort();
+function Results({ results, onRestart }: { results: QuestionResult[]; onRestart: () => void }): JSX.Element {
+  const correct: number = results.filter((r: QuestionResult) => r.correct).length;
+  const missedNumbers: number[] = [...new Set(results.filter((r: QuestionResult) => !r.correct).map((r: QuestionResult) => r.number))].sort();
 
-  const breakdown = ([1, 2, 3, 4, 5, 6, 7] as ScaleNumber[]).map(n => {
-    const attempts = results.filter(r => r.number === n);
-    return { number: n, attempts: attempts.length, correct: attempts.filter(r => r.correct).length };
-  }).filter(row => row.attempts > 0);
+  const breakdown: BreakdownRow[] = ([1, 2, 3, 4, 5, 6, 7] as ScaleNumber[]).map((n: ScaleNumber) => {
+    const attempts: QuestionResult[] = results.filter((r: QuestionResult) => r.number === n);
+    return { number: n, attempts: attempts.length, correct: attempts.filter((r: QuestionResult) => r.correct).length };
+  }).filter((row: BreakdownRow) => row.attempts > 0);
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 gap-8">
@@ -70,7 +76,7 @@ function Results({ results, onRestart }: { results: QuestionResult[]; onRestart:
       )}
 
       <div className="w-full max-w-xs border border-gray-800 rounded-xl overflow-hidden">
-        {breakdown.map(row => (
+        {breakdown.map((row: BreakdownRow) => (
           <div key={row.number} className="flex justify-between items-center px-4 py-3 border-b border-gray-800 last:border-0">
             <span className="text-gray-400 text-sm">
               <span className="text-white font-semibold mr-2">{row.number}</span>
@@ -93,9 +99,9 @@ function Results({ results, onRestart }: { results: QuestionResult[]; onRestart:
   );
 }
 
-export default function App() {
+export default function App(): JSX.Element | null {
   const retryQueueRef = useRef<RetryItem[]>([]);
-  const questionCountRef = useRef(0);
+  const questionCountRef = useRef<number>(0);
   const modeRef = useRef<Mode>('flashcard');
 
   const [mode, setMode] = useState<Mode>('flashcard');
@@ -103,17 +109,17 @@ export default function App() {
   const [feedback, setFeedback] = useState<Feedback>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [results, setResults] = useState<QuestionResult[]>([]);
-  const [sessionOver, setSessionOver] = useState(false);
+  const [sessionOver, setSessionOver] = useState<boolean>(false);
   const [highlight, setHighlight] = useState<FretPosition | null>(null);
 
-  function advance(currentResults: QuestionResult[]) {
+  function advance(currentResults: QuestionResult[]): void {
     if (currentResults.length >= SESSION_LENGTH) {
       setSessionOver(true);
       return;
     }
 
-    const queue = retryQueueRef.current;
-    const count = questionCountRef.current;
+    const queue: RetryItem[] = retryQueueRef.current;
+    const count: number = questionCountRef.current;
     let number: ScaleNumber;
 
     if (queue.length > 0 && count - queue[0].addedAt >= 3) {
@@ -126,8 +132,8 @@ export default function App() {
     questionCountRef.current += 1;
 
     if (modeRef.current === 'fretboard') {
-      const positions = DIATONIC_POSITIONS.filter(p => p.number === number);
-      const pos = positions[Math.floor(Math.random() * positions.length)];
+      const positions: FretPosition[] = DIATONIC_POSITIONS.filter((p: FretPosition) => p.number === number);
+      const pos: FretPosition = positions[Math.floor(Math.random() * positions.length)];
       setHighlight(pos);
       setQuestion(buildFretboardQuestion(number));
     } else {
@@ -141,13 +147,13 @@ export default function App() {
 
   useEffect(() => { advance([]); }, []);
 
-  function handleAnswer(note: string) {
+  function handleAnswer(note: string): void {
     if (feedback !== null) {
       return;
     }
-    const correct = note === question!.correctChoice;
+    const correct: boolean = note === question!.correctChoice;
     const result: QuestionResult = { number: question!.number, correct };
-    const nextResults = [...results, result];
+    const nextResults: QuestionResult[] = [...results, result];
 
     setSelected(note);
     setFeedback(correct ? 'correct' : 'incorrect');
@@ -163,7 +169,7 @@ export default function App() {
     setTimeout(() => { advance(nextResults); }, 1000);
   }
 
-  function handleRestart() {
+  function handleRestart(): void {
     retryQueueRef.current = [];
     questionCountRef.current = 0;
     setResults([]);
@@ -174,7 +180,7 @@ export default function App() {
     advance([]);
   }
 
-  function handleModeSwitch(next: Mode) {
+  function handleModeSwitch(next: Mode): void {
     modeRef.current = next;
     setMode(next);
     retryQueueRef.current = [];
@@ -195,7 +201,7 @@ export default function App() {
     return null;
   }
 
-  const answered = results.length;
+  const answered: number = results.length;
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col">
@@ -229,10 +235,10 @@ export default function App() {
         {mode === 'flashcard' && <div className="text-9xl font-bold">{question.number}</div>}
 
         <div className="grid grid-cols-2 gap-3 w-full max-w-xs">
-          {question.choices.map(note => {
-            const isCorrect = note === question.correctChoice;
-            const isSelected = note === selected;
-            let cls = 'py-5 text-xl font-semibold rounded-xl border-2 transition-colors cursor-pointer ';
+          {question.choices.map((note: string) => {
+            const isCorrect: boolean = note === question.correctChoice;
+            const isSelected: boolean = note === selected;
+            let cls: string = 'py-5 text-xl font-semibold rounded-xl border-2 transition-colors cursor-pointer ';
             if (feedback === null) {
               cls += 'border-gray-700 bg-gray-800 hover:bg-gray-700 active:bg-gray-600';
             } else if (isCorrect) {
@@ -243,7 +249,7 @@ export default function App() {
               cls += 'border-gray-800 bg-gray-900 text-gray-600';
             }
             return (
-              <button key={note} className={cls} onClick={() => handleAnswer(note)}>
+              <button key={note} className={cls} onClick={() => { handleAnswer(note); }}>
                 {note}
               </button>
             );

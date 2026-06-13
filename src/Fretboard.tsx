@@ -1,3 +1,4 @@
+import { JSX } from 'react/jsx-runtime';
 import { DIATONIC_POSITIONS, type FretPosition } from './music';
 
 const STRINGS: string[] = ['G', 'D', 'A', 'E', 'B'];
@@ -13,15 +14,14 @@ interface FretboardProps {
     highlight: FretPosition | null;
 }
 
-export default function Fretboard({ highlight }: FretboardProps) {
+export default function Fretboard({ highlight }: FretboardProps): JSX.Element {
     return (
         <svg
             viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-            className='w-full max-w-sm'
+            className="w-full max-w-sm"
         >
-            {/* Strings */}
-            {STRINGS.map((label, i) => {
-                const y = STRING_HEIGHT * (i + 1);
+            {STRINGS.map((label: string, i: number) => {
+                const y: number = STRING_HEIGHT * (i + 1);
                 return (
                     <g key={label}>
                         <line
@@ -36,9 +36,9 @@ export default function Fretboard({ highlight }: FretboardProps) {
                     </g>
                 );
             })}
-            {/* Fret liinies */}
-            {FRETS.map(fret => {
-                const x = LEFT_MARGIN + fret * FRET_WIDTH;
+
+            {FRETS.map((fret: number) => {
+                const x: number = LEFT_MARGIN + fret * FRET_WIDTH;
                 return (
                     <line
                         key={fret}
@@ -49,7 +49,7 @@ export default function Fretboard({ highlight }: FretboardProps) {
                     />
                 );
             })}
-            {/* Right edge */}
+
             <line
                 x1={SVG_WIDTH} y1={STRING_HEIGHT}
                 x2={SVG_WIDTH} y2={STRING_HEIGHT * 5}
@@ -57,7 +57,6 @@ export default function Fretboard({ highlight }: FretboardProps) {
                 strokeWidth={1}
             />
 
-            {/* 3rd fret dot marker */}
             <circle
                 cx={LEFT_MARGIN + 2.5 * FRET_WIDTH}
                 cy={STRING_HEIGHT * 0.5}
@@ -65,17 +64,16 @@ export default function Fretboard({ highlight }: FretboardProps) {
                 fill="#4b5563"
             />
 
-            {/* Highlighted position */}
             {highlight && (() => {
-                const stringIndex = 4 - highlight.string;  // flip: string 0 (B) is bottom row
-                const cx = highlight.fret === 0
-                    ? LEFT_MARGIN                             // open note sits on the nut
+                const stringIndex: number = 4 - highlight.string;
+                const cx: number = highlight.fret === 0
+                    ? LEFT_MARGIN
                     : LEFT_MARGIN + (highlight.fret - 0.5) * FRET_WIDTH;
-                const cy = STRING_HEIGHT * (stringIndex + 1);
+                const cy: number = STRING_HEIGHT * (stringIndex + 1);
                 return (
                     <circle cx={cx} cy={cy} r={12} fill="#3b82f6" />
                 );
             })()}
         </svg>
-    )
+    );
 }
