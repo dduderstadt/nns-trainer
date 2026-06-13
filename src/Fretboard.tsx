@@ -1,5 +1,5 @@
 import { JSX } from 'react/jsx-runtime';
-import { DIATONIC_POSITIONS, type FretPosition } from './music';
+import { type FretPosition } from './music';
 
 const STRINGS: string[] = ['G', 'D', 'A', 'E', 'B'];
 const FRETS: number[] = [0, 1, 2, 3, 4];

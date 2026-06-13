@@ -1,33 +1,62 @@
 export type ScaleNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
-export const SCALE: Record<ScaleNumber, string> = {
-  1: 'G', 2: 'A', 3: 'B', 4: 'C', 5: 'D', 6: 'E', 7: 'F#',
-};
-
-export const KEY: string = 'G';
+export type KeyName = 'C' | 'G' | 'D' | 'A' | 'E' | 'B' | 'F#' | 'Db' | 'Ab' | 'Eb' | 'Bb' | 'F';
 
 export interface FretPosition {
-    string: number; // 0 = B (lowest), 4 = G (highest)
-    fret: number; //  0 = open
-    note: string;
-    number: ScaleNumber;
+  string: number;  // 0 = B (lowest), 4 = G (highest)
+  fret: number;    // 0 = open
+  note: string;
+  number: ScaleNumber;
 }
 
-// All fret positions in open position (frets 0-4) that are diatonic to G major
-export const DIATONIC_POSITIONS: FretPosition[] = [
-    { string: 0, fret: 0, note: 'B', number: 3},
-    { string: 0, fret: 1, note: 'C',  number: 4 },
-    { string: 0, fret: 3, note: 'D',  number: 5 },
-    { string: 1, fret: 0, note: 'E',  number: 6 },
-    { string: 1, fret: 2, note: 'F#', number: 7 },
-    { string: 1, fret: 3, note: 'G',  number: 1 },
-    { string: 2, fret: 0, note: 'A',  number: 2 },
-    { string: 2, fret: 2, note: 'B',  number: 3 },
-    { string: 2, fret: 3, note: 'C',  number: 4 },
-    { string: 3, fret: 0, note: 'D',  number: 5 },
-    { string: 3, fret: 2, note: 'E',  number: 6 },
-    { string: 3, fret: 4, note: 'F#', number: 7 },
-    { string: 4, fret: 0, note: 'G',  number: 1 },
-    { string: 4, fret: 2, note: 'A',  number: 2 },
-    { string: 4, fret: 4, note: 'B',  number: 3 },
-  ];
+// Circle of fifths order
+export const KEY_NAMES: KeyName[] = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
+
+export const ALL_KEYS: Record<KeyName, Record<ScaleNumber, string>> = {
+  'C':  { 1: 'C',  2: 'D',  3: 'E',  4: 'F',  5: 'G',  6: 'A',  7: 'B'  },
+  'G':  { 1: 'G',  2: 'A',  3: 'B',  4: 'C',  5: 'D',  6: 'E',  7: 'F#' },
+  'D':  { 1: 'D',  2: 'E',  3: 'F#', 4: 'G',  5: 'A',  6: 'B',  7: 'C#' },
+  'A':  { 1: 'A',  2: 'B',  3: 'C#', 4: 'D',  5: 'E',  6: 'F#', 7: 'G#' },
+  'E':  { 1: 'E',  2: 'F#', 3: 'G#', 4: 'A',  5: 'B',  6: 'C#', 7: 'D#' },
+  'B':  { 1: 'B',  2: 'C#', 3: 'D#', 4: 'E',  5: 'F#', 6: 'G#', 7: 'A#' },
+  'F#': { 1: 'F#', 2: 'G#', 3: 'A#', 4: 'B',  5: 'C#', 6: 'D#', 7: 'E#' },
+  'Db': { 1: 'Db', 2: 'Eb', 3: 'F',  4: 'Gb', 5: 'Ab', 6: 'Bb', 7: 'C'  },
+  'Ab': { 1: 'Ab', 2: 'Bb', 3: 'C',  4: 'Db', 5: 'Eb', 6: 'F',  7: 'G'  },
+  'Eb': { 1: 'Eb', 2: 'F',  3: 'G',  4: 'Ab', 5: 'Bb', 6: 'C',  7: 'D'  },
+  'Bb': { 1: 'Bb', 2: 'C',  3: 'D',  4: 'Eb', 5: 'F',  6: 'G',  7: 'A'  },
+  'F':  { 1: 'F',  2: 'G',  3: 'A',  4: 'Bb', 5: 'C',  6: 'D',  7: 'E'  },
+};
+
+const CHROMATIC: string[] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+// Maps enharmonic flat/double-sharp names to their sharp equivalent for chromatic lookup
+const ENHARMONICS: Record<string, string> = {
+  'Bb': 'A#', 'Eb': 'D#', 'Ab': 'G#', 'Db': 'C#', 'Gb': 'F#', 'Cb': 'B', 'Fb': 'E',
+  'E#': 'F',  'B#': 'C',
+};
+
+export function computeDiatonicPositions(scale: Record<ScaleNumber, string>): FretPosition[] {
+  const OPEN_NOTES: string[] = ['B', 'E', 'A', 'D', 'G'];
+
+  // Build normalized note → scale number map
+  const noteToNumber: Map<string, ScaleNumber> = new Map<string, ScaleNumber>();
+  for (const [num, note] of Object.entries(scale)) {
+    const normalized: string = ENHARMONICS[note] ?? note;
+    noteToNumber.set(normalized, Number(num) as ScaleNumber);
+  }
+
+  const positions: FretPosition[] = [];
+  for (let string: number = 0; string < 5; string++) {
+    const openNote: string = OPEN_NOTES[string];
+    const openIndex: number = CHROMATIC.indexOf(openNote);
+    for (let fret: number = 0; fret <= 4; fret++) {
+      const noteIndex: number = (openIndex + fret) % 12;
+      const chromaticNote: string = CHROMATIC[noteIndex];
+      const num: ScaleNumber | undefined = noteToNumber.get(chromaticNote);
+      if (num !== undefined) {
+        positions.push({ string, fret, note: scale[num], number: num });
+      }
+    }
+  }
+  return positions;
+}

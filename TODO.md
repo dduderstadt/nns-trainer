@@ -1,8 +1,8 @@
 # TODO
 
 ## Keys
-- [ ] Key selector — let user choose which key to drill in
-- [ ] Add all 12 major keys to the data model (currently hardcoded to G)
+- [x] Key selector — let user choose which key to drill in
+- [x] Add all 12 major keys to the data model (currently hardcoded to G)
 - [ ] Random key button — pick a key at random for the session
 
 ## Practice Modes
@@ -22,4 +22,4 @@
 - [ ] Option to disable key unlocking and go free across all 12 keys
 
 ## Fretboard Visual
-- [ ] SVG fretboard — 5 strings (B E A D G), frets 0–4, labeled strings, dot marker at 3rd fret
+- [x] SVG fretboard — 5 strings (B E A D G), frets 0–4, labeled strings, dot marker at 3rd fret

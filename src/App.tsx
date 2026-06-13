@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, JSX } from 'react';
-import { type ScaleNumber, type FretPosition, SCALE, KEY, DIATONIC_POSITIONS } from './music';
+import { type ScaleNumber, type FretPosition, type KeyName, ALL_KEYS, computeDiatonicPositions } from './music';
 import Fretboard from './Fretboard';
+import KeySelector from './KeySelector';
 
 type Feedback = 'correct' | 'incorrect' | null;
 type Mode = 'flashcard' | 'fretboard';
@@ -38,9 +39,9 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function buildFlashcardQuestion(number: ScaleNumber): Question {
-  const correct: string = SCALE[number];
-  const others: string[] = shuffle(Object.values(SCALE).filter((n: string) => n !== correct)).slice(0, 3);
+function buildFlashcardQuestion(number: ScaleNumber, scale: Record<ScaleNumber, string>): Question {
+  const correct: string = scale[number];
+  const others: string[] = shuffle(Object.values(scale).filter((n: string) => n !== correct)).slice(0, 3);
   return { number, choices: shuffle([correct, ...others]), correctChoice: correct };
 }
 
@@ -50,7 +51,7 @@ function buildFretboardQuestion(number: ScaleNumber): Question {
   return { number, choices, correctChoice: String(number) };
 }
 
-function Results({ results, onRestart }: { results: QuestionResult[]; onRestart: () => void }): JSX.Element {
+function Results({ results, onRestart, scale }: { results: QuestionResult[]; onRestart: () => void; scale: Record<ScaleNumber, string> }): JSX.Element {
   const correct: number = results.filter((r: QuestionResult) => r.correct).length;
   const missedNumbers: number[] = [...new Set(results.filter((r: QuestionResult) => !r.correct).map((r: QuestionResult) => r.number))].sort();
 
@@ -80,7 +81,7 @@ function Results({ results, onRestart }: { results: QuestionResult[]; onRestart:
           <div key={row.number} className="flex justify-between items-center px-4 py-3 border-b border-gray-800 last:border-0">
             <span className="text-gray-400 text-sm">
               <span className="text-white font-semibold mr-2">{row.number}</span>
-              {SCALE[row.number]}
+              {scale[row.number]}
             </span>
             <span className={`text-sm font-medium ${row.correct === row.attempts ? 'text-green-400' : 'text-red-400'}`}>
               {row.correct}/{row.attempts}
@@ -103,7 +104,9 @@ export default function App(): JSX.Element | null {
   const retryQueueRef = useRef<RetryItem[]>([]);
   const questionCountRef = useRef<number>(0);
   const modeRef = useRef<Mode>('flashcard');
+  const selectedKeyRef = useRef<KeyName>('G');
 
+  const [selectedKey, setSelectedKey] = useState<KeyName>('G');
   const [mode, setMode] = useState<Mode>('flashcard');
   const [question, setQuestion] = useState<Question | null>(null);
   const [feedback, setFeedback] = useState<Feedback>(null);
@@ -117,6 +120,9 @@ export default function App(): JSX.Element | null {
       setSessionOver(true);
       return;
     }
+
+    const scale: Record<ScaleNumber, string> = ALL_KEYS[selectedKeyRef.current];
+    const diatonicPositions: FretPosition[] = computeDiatonicPositions(scale);
 
     const queue: RetryItem[] = retryQueueRef.current;
     const count: number = questionCountRef.current;
@@ -132,13 +138,13 @@ export default function App(): JSX.Element | null {
     questionCountRef.current += 1;
 
     if (modeRef.current === 'fretboard') {
-      const positions: FretPosition[] = DIATONIC_POSITIONS.filter((p: FretPosition) => p.number === number);
+      const positions: FretPosition[] = diatonicPositions.filter((p: FretPosition) => p.number === number);
       const pos: FretPosition = positions[Math.floor(Math.random() * positions.length)];
       setHighlight(pos);
       setQuestion(buildFretboardQuestion(number));
     } else {
       setHighlight(null);
-      setQuestion(buildFlashcardQuestion(number));
+      setQuestion(buildFlashcardQuestion(number, scale));
     }
 
     setFeedback(null);
@@ -169,7 +175,7 @@ export default function App(): JSX.Element | null {
     setTimeout(() => { advance(nextResults); }, 1000);
   }
 
-  function handleRestart(): void {
+  function resetSession(): void {
     retryQueueRef.current = [];
     questionCountRef.current = 0;
     setResults([]);
@@ -183,18 +189,17 @@ export default function App(): JSX.Element | null {
   function handleModeSwitch(next: Mode): void {
     modeRef.current = next;
     setMode(next);
-    retryQueueRef.current = [];
-    questionCountRef.current = 0;
-    setResults([]);
-    setSessionOver(false);
-    setQuestion(null);
-    setFeedback(null);
-    setSelected(null);
-    advance([]);
+    resetSession();
+  }
+
+  function handleKeySwitch(key: KeyName): void {
+    selectedKeyRef.current = key;
+    setSelectedKey(key);
+    resetSession();
   }
 
   if (sessionOver) {
-    return <Results results={results} onRestart={handleRestart} />;
+    return <Results results={results} onRestart={resetSession} scale={ALL_KEYS[selectedKey]} />;
   }
 
   if (!question) {
@@ -207,9 +212,10 @@ export default function App(): JSX.Element | null {
     <div className="min-h-screen bg-gray-950 text-white flex flex-col">
       <div className="flex flex-col border-b border-gray-800">
         <div className="flex justify-between items-center px-4 py-3">
-          <span className="text-gray-400 text-sm font-medium">Key of {KEY}</span>
+          <span className="text-gray-400 text-sm font-medium">Key of {selectedKey}</span>
           <span className="text-gray-400 text-sm font-medium">{answered}/{SESSION_LENGTH}</span>
         </div>
+        <KeySelector currentKey={selectedKey} onSelect={handleKeySwitch} />
         <div className="flex">
           <button
             className={`flex-1 py-2 text-sm font-medium transition-colors ${mode === 'flashcard' ? 'text-white border-b-2 border-white' : 'text-gray-500'}`}
