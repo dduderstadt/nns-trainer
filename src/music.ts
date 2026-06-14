@@ -35,10 +35,9 @@ const ENHARMONICS: Record<string, string> = {
   'E#': 'F',  'B#': 'C',
 };
 
-export function computeDiatonicPositions(scale: Record<ScaleNumber, string>): FretPosition[] {
+export function computeDiatonicPositions(scale: Record<ScaleNumber, string>, maxFret: number = 4): FretPosition[] {
   const OPEN_NOTES: string[] = ['B', 'E', 'A', 'D', 'G'];
 
-  // Build normalized note → scale number map
   const noteToNumber: Map<string, ScaleNumber> = new Map<string, ScaleNumber>();
   for (const [num, note] of Object.entries(scale)) {
     const normalized: string = ENHARMONICS[note] ?? note;
@@ -49,7 +48,7 @@ export function computeDiatonicPositions(scale: Record<ScaleNumber, string>): Fr
   for (let string: number = 0; string < 5; string++) {
     const openNote: string = OPEN_NOTES[string];
     const openIndex: number = CHROMATIC.indexOf(openNote);
-    for (let fret: number = 0; fret <= 4; fret++) {
+    for (let fret: number = 0; fret <= maxFret; fret++) {
       const noteIndex: number = (openIndex + fret) % 12;
       const chromaticNote: string = CHROMATIC[noteIndex];
       const num: ScaleNumber | undefined = noteToNumber.get(chromaticNote);

@@ -5,7 +5,7 @@ import Fretboard from './Fretboard';
 import KeySelector from './KeySelector';
 
 type Feedback = 'correct' | 'incorrect' | null;
-type Mode = 'flashcard' | 'fretboard';
+type Mode = 'flashcard' | 'fretboard' | 'study';
 
 interface Question {
   number: ScaleNumber;
@@ -211,6 +211,56 @@ export default function App(): JSX.Element | null {
     return <Results results={results} onRestart={resetSession} scale={ALL_KEYS[selectedKey]} streak={stats.streak} />;
   }
 
+  if (mode === 'study') {
+    const studyPositions = computeDiatonicPositions(ALL_KEYS[selectedKey], 7);
+    return (
+      <div className="min-h-screen bg-gray-950 text-white flex flex-col">
+        <div className="flex flex-col border-b border-gray-800">
+          <div className="flex justify-between items-center px-4 py-3">
+            <span className="text-gray-400 text-sm font-medium">Key of {selectedKey}</span>
+          </div>
+          <KeySelector currentKey={selectedKey} onSelect={handleKeySwitch} />
+          <div className="flex justify-center py-3">
+            <button
+              className="w-1/3 py-1.5 text-sm font-medium text-blue-400 bg-blue-950 hover:bg-blue-900 rounded-lg transition-colors cursor-pointer"
+              onClick={() => { handleKeySwitch(KEY_NAMES[Math.floor(Math.random() * KEY_NAMES.length)]); }}
+            >
+              Random Key
+            </button>
+          </div>
+          <div className="flex">
+            <button
+              className="flex-1 py-2 text-sm font-medium transition-colors text-gray-500"
+              onClick={() => { handleModeSwitch('flashcard'); }}
+            >
+              Flashcard
+            </button>
+            <button
+              className="flex-1 py-2 text-sm font-medium transition-colors text-gray-500"
+              onClick={() => { handleModeSwitch('fretboard'); }}
+            >
+              Fretboard
+            </button>
+            <button
+              className="flex-1 py-2 text-sm font-medium transition-colors text-white border-b-2 border-white"
+              onClick={() => { handleModeSwitch('study'); }}
+            >
+              Study
+            </button>
+          </div>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center px-4 gap-6">
+          <Fretboard positions={studyPositions} className="w-full max-w-2xl" viewBoxHeight={240} fretCount={8} />
+          <div className="flex gap-4 text-sm text-gray-400">
+            <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full bg-blue-500"></span>Root</span>
+            <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full bg-amber-500"></span>4th</span>
+            <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full bg-green-500"></span>5th</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!question) {
     return null;
   }
@@ -245,6 +295,12 @@ export default function App(): JSX.Element | null {
             onClick={() => { handleModeSwitch('fretboard'); }}
           >
             Fretboard
+          </button>
+          <button
+            className="flex-1 py-2 text-sm font-medium transition-colors text-gray-500"
+            onClick={() => { handleModeSwitch('study'); }}
+          >
+            Study
           </button>
         </div>
       </div>
