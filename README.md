@@ -19,6 +19,7 @@ A web-based drill app for a 5-string electric bass player learning to internaliz
 - Per-session score breakdown by scale degree
 - Streak counter for consecutive passing sessions (≥7/10)
 - Stats persisted to localStorage (accuracy per key, per scale degree)
+- Weak spot detection: after each session, surfaces numbers below 80% accuracy grouped by key
 
 ## Stack
 

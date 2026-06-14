@@ -18,7 +18,7 @@
 ## Progress & Stats
 - [x] Persist session stats to localStorage (accuracy per key, accuracy per scale degree)
 - [x] Streak counter — consecutive passing sessions (≥7/10), shown on results screen
-- [ ] Highlight weak spots — surface which numbers or keys have the lowest accuracy over time
+- [x] Highlight weak spots — surface which numbers or keys have the lowest accuracy over time
 - [ ] Stats dashboard — dedicated page showing accuracy per key, per scale degree, and streak history
 
 ## Difficulty
