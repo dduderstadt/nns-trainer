@@ -67,3 +67,20 @@ export function updateStats(
     streak: passed ? current.streak + 1 : 0,
   };
 }
+
+const MIN_ATTEMPTS = 5;
+const WEAK_THRESHOLD = 0.7;
+
+export function getWeakSpots(stats: PersistentStats): { numbers: ScaleNumber[]; keys: KeyName[] } {
+  const numbers = (Object.entries(stats.byNumber) as [string, NumberStats][])
+    .filter(([, s]) => s.attempts >= MIN_ATTEMPTS && s.correct / s.attempts < WEAK_THRESHOLD)
+    .sort(([, a], [, b]) => a.correct / a.attempts - b.correct / b.attempts)
+    .map(([n]) => Number(n) as ScaleNumber);
+
+  const keys = (Object.entries(stats.byKey) as [string, NumberStats][])
+    .filter(([, s]) => s.attempts >= MIN_ATTEMPTS && s.correct / s.attempts < WEAK_THRESHOLD)
+    .sort(([, a], [, b]) => a.correct / a.attempts - b.correct / b.attempts)
+    .map(([k]) => k as KeyName);
+
+  return { numbers, keys };
+}

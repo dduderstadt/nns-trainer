@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, JSX } from 'react';
 import { type ScaleNumber, type FretPosition, type KeyName, ALL_KEYS, KEY_NAMES, computeDiatonicPositions } from './music';
-import { type QuestionResult, type PersistentStats, loadStats, updateStats, saveStats } from './stats';
+import { type QuestionResult, type PersistentStats, loadStats, updateStats, saveStats, getWeakSpots } from './stats';
 import Fretboard from './Fretboard';
 import KeySelector from './KeySelector';
 import ChordChart from './ChordChart';
@@ -49,7 +49,7 @@ function buildFretboardQuestion(number: ScaleNumber): Question {
   return { number, choices, correctChoice: String(number) };
 }
 
-function Results({ results, onRestart, scale, streak }: { results: QuestionResult[]; onRestart: () => void; scale: Record<ScaleNumber, string>; streak: number }): JSX.Element {
+function Results({ results, onRestart, scale, stats }: { results: QuestionResult[]; onRestart: () => void; scale: Record<ScaleNumber, string>; stats: PersistentStats }): JSX.Element {
   const correct: number = results.filter((r: QuestionResult) => r.correct).length;
   const missedNumbers: number[] = [...new Set(results.filter((r: QuestionResult) => !r.correct).map((r: QuestionResult) => r.number))].sort();
 
@@ -57,6 +57,8 @@ function Results({ results, onRestart, scale, streak }: { results: QuestionResul
     const attempts: QuestionResult[] = results.filter((r: QuestionResult) => r.number === n);
     return { number: n, attempts: attempts.length, correct: attempts.filter((r: QuestionResult) => r.correct).length };
   }).filter((row: BreakdownRow) => row.attempts > 0);
+
+  const weakSpots = getWeakSpots(stats);
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 gap-8">
@@ -75,7 +77,7 @@ function Results({ results, onRestart, scale, streak }: { results: QuestionResul
       )}
 
       <p className="text-gray-400 text-sm">
-        {streak > 0 ? `${streak} session streak` : 'Streak: 0'}
+        {stats.streak > 0 ? `${stats.streak} session streak` : 'Streak: 0'}
       </p>
 
       <div className="w-full max-w-xs border border-gray-800 rounded-xl overflow-hidden">
@@ -91,6 +93,26 @@ function Results({ results, onRestart, scale, streak }: { results: QuestionResul
           </div>
         ))}
       </div>
+
+      {(weakSpots.numbers.length > 0 || weakSpots.keys.length > 0) && (
+        <div className="w-full max-w-xs">
+          <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Weak spots</p>
+          <div className="border border-gray-800 rounded-xl overflow-hidden">
+            {weakSpots.numbers.length > 0 && (
+              <div className="flex justify-between items-center px-4 py-3 border-b border-gray-800 last:border-0">
+                <span className="text-gray-400 text-sm">Numbers</span>
+                <span className="text-amber-400 text-sm font-medium">{weakSpots.numbers.join(', ')}</span>
+              </div>
+            )}
+            {weakSpots.keys.length > 0 && (
+              <div className="flex justify-between items-center px-4 py-3">
+                <span className="text-gray-400 text-sm">Keys</span>
+                <span className="text-amber-400 text-sm font-medium">{weakSpots.keys.join(', ')}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <button
         className="px-8 py-4 bg-white text-gray-950 font-semibold rounded-xl hover:bg-gray-200 transition-colors cursor-pointer"
@@ -212,7 +234,7 @@ export default function App(): JSX.Element | null {
   }
 
   if (sessionOver) {
-    return <Results results={results} onRestart={resetSession} scale={ALL_KEYS[selectedKey]} streak={stats.streak} />;
+    return <Results results={results} onRestart={resetSession} scale={ALL_KEYS[selectedKey]} stats={stats} />;
   }
 
   if (mode === 'study') {
