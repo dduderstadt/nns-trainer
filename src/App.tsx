@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, JSX } from 'react';
 import { type ScaleNumber, type FretPosition, type KeyName, ALL_KEYS, KEY_NAMES, computeDiatonicPositions } from './music';
-import { type QuestionResult, type PersistentStats, loadStats, updateStats, saveStats, getWeakSpots } from './stats';
+import { type QuestionResult, type PersistentStats, type WeakKey, loadStats, updateStats, saveStats, getWeakSpots } from './stats';
 import Fretboard from './Fretboard';
 import KeySelector from './KeySelector';
 import ChordChart from './ChordChart';
@@ -94,22 +94,16 @@ function Results({ results, onRestart, scale, stats }: { results: QuestionResult
         ))}
       </div>
 
-      {(weakSpots.numbers.length > 0 || weakSpots.keys.length > 0) && (
+      {weakSpots.length > 0 && (
         <div className="w-full max-w-xs">
           <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Weak spots</p>
           <div className="border border-gray-800 rounded-xl overflow-hidden">
-            {weakSpots.numbers.length > 0 && (
-              <div className="flex justify-between items-center px-4 py-3 border-b border-gray-800 last:border-0">
-                <span className="text-gray-400 text-sm">Numbers</span>
-                <span className="text-amber-400 text-sm font-medium">{weakSpots.numbers.join(', ')}</span>
+            {weakSpots.map((w: WeakKey) => (
+              <div key={w.key} className="flex justify-between items-center px-4 py-3 border-b border-gray-800 last:border-0">
+                <span className="text-gray-400 text-sm">Key of {w.key}</span>
+                <span className="text-amber-400 text-sm font-medium">{w.numbers.join(', ')}</span>
               </div>
-            )}
-            {weakSpots.keys.length > 0 && (
-              <div className="flex justify-between items-center px-4 py-3">
-                <span className="text-gray-400 text-sm">Keys</span>
-                <span className="text-amber-400 text-sm font-medium">{weakSpots.keys.join(', ')}</span>
-              </div>
-            )}
+            ))}
           </div>
         </div>
       )}
