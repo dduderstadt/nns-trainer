@@ -23,12 +23,13 @@ const DOT_FRETS: number[] = [3, 5, 7, 9];
 interface FretboardProps {
   highlight?: FretPosition | null;
   positions?: FretPosition[];
+  errorNumbers?: Set<ScaleNumber>;
   className?: string;
   viewBoxHeight?: number;
   fretCount?: number;
 }
 
-export default function Fretboard({ highlight, positions, className = 'w-full max-w-sm', viewBoxHeight = SVG_HEIGHT, fretCount = 5 }: FretboardProps): JSX.Element {
+export default function Fretboard({ highlight, positions, errorNumbers, className = 'w-full max-w-sm', viewBoxHeight = SVG_HEIGHT, fretCount = 5 }: FretboardProps): JSX.Element {
   const stringHeight: number = viewBoxHeight / 6;
   const svgWidth: number = LEFT_MARGIN + fretCount * FRET_WIDTH + RIGHT_PADDING;
   const frets: number[] = Array.from({ length: fretCount }, (_: unknown, i: number) => i);
@@ -48,7 +49,7 @@ export default function Fretboard({ highlight, positions, className = 'w-full ma
               stroke="#4b5563"
               strokeWidth={i === 4 ? 2.5 : 1.5}
             />
-            <text x={8} y={y + 4} fill="#6b7280" fontSize={10} textAnchor="middle">
+            <text x={8} y={y + 4} fill="white" fontSize={13} fontWeight="bold" textAnchor="middle">
               {label}
             </text>
           </g>
@@ -80,11 +81,12 @@ export default function Fretboard({ highlight, positions, className = 'w-full ma
         const cy: number = stringHeight * 0.25;
         return (
           <g key={f}>
-            <circle cx={cx} cy={cy} r={4} fill="#4b5563" />
+            <circle cx={cx} cy={cy} r={6} fill="white" />
             <text
-              x={cx + 7} y={cy}
-              fill="#6b7280"
-              fontSize={8}
+              x={cx + 12} y={cy}
+              fill="white"
+              fontSize={13}
+              fontWeight="bold"
               textAnchor="start"
               dominantBaseline="middle"
             >
@@ -141,7 +143,7 @@ export default function Fretboard({ highlight, positions, className = 'w-full ma
             >
               {pos.note}
             </text>
-            <circle cx={cx} cy={cy} r={POSITION_RADIUS} fill={DEGREE_COLORS[pos.number]} />
+            <circle cx={cx} cy={cy} r={POSITION_RADIUS} fill={errorNumbers?.has(pos.number) ? '#ef4444' : DEGREE_COLORS[pos.number]} />
             <text
               x={cx} y={cy}
               fill="white"

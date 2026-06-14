@@ -27,6 +27,20 @@ export const ALL_KEYS: Record<KeyName, Record<ScaleNumber, string>> = {
   'F':  { 1: 'F',  2: 'G',  3: 'A',  4: 'Bb', 5: 'C',  6: 'D',  7: 'E'  },
 };
 
+export const PROGRESSIONS: ScaleNumber[][] = [
+  [1, 4, 5, 1],
+  [1, 5, 6, 4],
+  [1, 6, 4, 5],
+  [1, 4, 1, 5],
+  [1, 4, 2, 5],
+  [1, 3, 4, 5],
+  [1, 6, 2, 5],
+  [2, 5, 1, 1],
+  [1, 4, 5, 4],
+  [6, 4, 1, 5],
+  [1, 1, 4, 4, 5, 4, 1, 1],
+];
+
 const CHROMATIC: string[] = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
 // Maps enharmonic flat/double-sharp names to their sharp equivalent for chromatic lookup
