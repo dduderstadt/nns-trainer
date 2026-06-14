@@ -101,7 +101,19 @@ export default function Fretboard({ highlight, positions, className = 'w-full ma
           : LEFT_MARGIN + (highlight.fret - 0.5) * FRET_WIDTH;
         const cy: number = stringHeight * (stringIndex + 1);
         return (
-          <circle cx={cx} cy={cy} r={12} fill="#3b82f6" />
+          <g>
+            <circle cx={cx} cy={cy} r={12} fill="#3b82f6" />
+            <text
+              x={cx} y={cy}
+              fill="white"
+              fontSize={9}
+              fontWeight="bold"
+              textAnchor="middle"
+              dominantBaseline="middle"
+            >
+              {highlight.note}
+            </text>
+          </g>
         );
       })()}
 

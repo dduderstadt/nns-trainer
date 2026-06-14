@@ -131,7 +131,7 @@ export default function App(): JSX.Element | null {
     }
 
     const scale: Record<ScaleNumber, string> = ALL_KEYS[selectedKeyRef.current];
-    const diatonicPositions: FretPosition[] = computeDiatonicPositions(scale);
+    const diatonicPositions: FretPosition[] = computeDiatonicPositions(scale, 7);
 
     const queue: RetryItem[] = retryQueueRef.current;
     const count: number = questionCountRef.current;
@@ -306,7 +306,7 @@ export default function App(): JSX.Element | null {
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center px-4 gap-8">
-        {mode === 'fretboard' && <Fretboard highlight={highlight} />}
+        {mode === 'fretboard' && <Fretboard highlight={highlight} fretCount={8} className="w-full max-w-2xl" viewBoxHeight={240} />}
         {mode === 'fretboard'
           ? <p className="text-gray-400 text-lg">What number is this note?</p>
           : <p className="text-gray-400 text-lg">What note is the...</p>

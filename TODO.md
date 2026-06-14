@@ -7,7 +7,7 @@
 
 ## Practice Modes
 - [x] Fretboard mode — highlight a fret/string position, ask "what Nashville number is this?"
-- [ ] Extend fretboard quiz mode to include frets 0–7 (currently limited to 0–4)
+- [x] Extend fretboard quiz mode to include frets 0–7 (currently limited to 0–4)
 - [x] Study mode — show all notes of the selected key on the fretboard, color-coded by scale degree (1=blue, 4=amber, 5=green)
 - [ ] Fretboard note identification — shown a fret position, ask "what note is this?" (answer is the note name e.g. F# or Bb, independent of key context)
 - [ ] Chord chart reader mode — display a number chart (e.g. 1-4-5-1), tap each number to reveal the note name
