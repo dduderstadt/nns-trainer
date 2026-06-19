@@ -15,6 +15,7 @@ export interface PersistentStats {
 export interface QuestionResult {
   number: ScaleNumber;
   correct: boolean;
+  note?: string;
 }
 
 const STORAGE_KEY: string = 'nns-stats';

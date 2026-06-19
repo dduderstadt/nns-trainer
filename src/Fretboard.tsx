@@ -22,6 +22,7 @@ const DOT_FRETS: number[] = [3, 5, 7, 9];
 
 interface FretboardProps {
   highlight?: FretPosition | null;
+  showHighlightNote?: boolean;
   positions?: FretPosition[];
   errorNumbers?: Set<ScaleNumber>;
   className?: string;
@@ -29,7 +30,7 @@ interface FretboardProps {
   fretCount?: number;
 }
 
-export default function Fretboard({ highlight, positions, errorNumbers, className = 'w-full max-w-sm', viewBoxHeight = SVG_HEIGHT, fretCount = 5 }: FretboardProps): JSX.Element {
+export default function Fretboard({ highlight, showHighlightNote = true, positions, errorNumbers, className = 'w-full max-w-sm', viewBoxHeight = SVG_HEIGHT, fretCount = 5 }: FretboardProps): JSX.Element {
   const stringHeight: number = viewBoxHeight / 6;
   const svgWidth: number = LEFT_MARGIN + fretCount * FRET_WIDTH + RIGHT_PADDING;
   const frets: number[] = Array.from({ length: fretCount }, (_: unknown, i: number) => i);
@@ -105,16 +106,18 @@ export default function Fretboard({ highlight, positions, errorNumbers, classNam
         return (
           <g>
             <circle cx={cx} cy={cy} r={12} fill="#3b82f6" />
-            <text
-              x={cx} y={cy}
-              fill="white"
-              fontSize={9}
-              fontWeight="bold"
-              textAnchor="middle"
-              dominantBaseline="middle"
-            >
-              {highlight.note}
-            </text>
+            {showHighlightNote && (
+              <text
+                x={cx} y={cy}
+                fill="white"
+                fontSize={9}
+                fontWeight="bold"
+                textAnchor="middle"
+                dominantBaseline="middle"
+              >
+                {highlight.note}
+              </text>
+            )}
           </g>
         );
       })()}

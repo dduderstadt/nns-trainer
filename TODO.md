@@ -11,6 +11,7 @@
 - [x] Study mode — show all notes of the selected key on the fretboard, color-coded by scale degree (1=blue, 4=amber, 5=green)
 - [ ] Fretboard note identification — shown a fret position, ask "what note is this?" (answer is the note name e.g. F# or Bb, independent of key context)
 - [x] Chord chart reader mode — display a number chart (e.g. 1-4-5-1), tap each number to reveal the note name
+- [ ] "What notes fit?" mode — given a chord progression, identify which scale notes fit over each chord (passing tones, avoid notes)
 
 ## Input
 - [ ] Text input toggle — let user type the answer instead of using multiple choice buttons
