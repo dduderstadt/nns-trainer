@@ -29,5 +29,8 @@
 ## Fretboard Visual
 - [x] SVG fretboard — 5 strings (B E A D G), frets 0–4, labeled strings, dot marker at 3rd fret
 
+## Refactoring
+- [ ] Split App.tsx (~420 lines) into smaller components — extract Results, TabBar, StudyMode, ChartMode, and move quiz helpers (shuffle, question builders, note helpers) into a quiz.ts module
+
 ## UI
 - [ ] Redesign color scheme
