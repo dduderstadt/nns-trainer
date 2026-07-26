@@ -1,6 +1,6 @@
 # NNS Bass Trainer
 
-A web-based drill app for a 5-string electric bass player learning to internalize the Nashville Number System across all 12 keys.
+Most bass players learn songs by memorizing shapes on one neck position. This app drills the underlyng number-to-note relationships instead - so a "1-4-5" progression is recognizable and playable in any key, not just the one it was learned in. Four practice modes target different skills: recall, fretboard recognition, chord-building, and visual study.
 
 ## Modes
 
