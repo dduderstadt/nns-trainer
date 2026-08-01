@@ -79,7 +79,7 @@ export default function ChordChart({ scale }: ChordChartProps): JSX.Element {
   }
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-4 gap-8">
+    <div className="flex-1 flex flex-col items-center justify-start pt-6 px-4 gap-8">
       <div className="flex flex-wrap justify-center gap-3">
         {progression.map((num: ScaleNumber, j: number) => {
           const placed = slots[j];

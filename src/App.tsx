@@ -2,11 +2,10 @@ import { useState, useEffect, useRef, JSX } from 'react';
 import { type ScaleNumber, type FretPosition, type KeyName, ALL_KEYS, KEY_NAMES, computeDiatonicPositions } from './music';
 import { type QuestionResult, type PersistentStats, type WeakKey, loadStats, updateStats, saveStats, getWeakSpots } from './stats';
 import Fretboard from './Fretboard';
-import KeySelector from './KeySelector';
 import ChordChart from './ChordChart';
+import ModeHeader, { type Mode } from './ModeHeader';
 
 type Feedback = 'correct' | 'incorrect' | null;
-type Mode = 'flashcard' | 'fretboard' | 'note-id' | 'study' | 'chart';
 
 interface Question {
   number: ScaleNumber;
@@ -269,28 +268,8 @@ export default function App(): JSX.Element | null {
     const studyPositions = computeDiatonicPositions(ALL_KEYS[selectedKey], 7);
     return (
       <div className="min-h-screen bg-gray-950 text-white flex flex-col">
-        <div className="flex flex-col border-b border-gray-800">
-          <div className="flex justify-between items-center px-4 py-3">
-            <span className="text-gray-400 text-sm font-medium">Key of {selectedKey}</span>
-          </div>
-          <KeySelector currentKey={selectedKey} onSelect={handleKeySwitch} />
-          <div className="flex justify-center py-3">
-            <button
-              className="w-1/3 py-1.5 text-sm font-medium text-blue-400 bg-blue-950 hover:bg-blue-900 rounded-lg transition-colors cursor-pointer"
-              onClick={() => { handleKeySwitch(KEY_NAMES[Math.floor(Math.random() * KEY_NAMES.length)]); }}
-            >
-              Random Key
-            </button>
-          </div>
-          <div className="flex">
-            <button className="flex-1 py-2 text-xs font-medium transition-colors text-gray-500" onClick={() => { handleModeSwitch('flashcard'); }}>Flashcard</button>
-            <button className="flex-1 py-2 text-xs font-medium transition-colors text-gray-500" onClick={() => { handleModeSwitch('fretboard'); }}>Fretboard</button>
-            <button className="flex-1 py-2 text-xs font-medium transition-colors text-gray-500" onClick={() => { handleModeSwitch('note-id'); }}>Note ID</button>
-            <button className="flex-1 py-2 text-xs font-medium transition-colors text-gray-500" onClick={() => { handleModeSwitch('chart'); }}>Number Map</button>
-            <button className="flex-1 py-2 text-xs font-medium transition-colors text-white border-b-2 border-white" onClick={() => { handleModeSwitch('study'); }}>Study</button>
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col items-center justify-center px-4 gap-6">
+        <ModeHeader mode={mode} selectedKey={selectedKey} onKeySwitch={handleKeySwitch} onModeSwitch={handleModeSwitch} />
+        <div className="flex-1 flex flex-col items-center justify-start pt-6 px-4 gap-6">
           <Fretboard positions={studyPositions} className="w-full max-w-2xl" viewBoxHeight={240} fretCount={8} />
           <div className="flex gap-4 text-sm text-gray-400">
             <span className="flex items-center gap-1.5"><span className="inline-block w-3 h-3 rounded-full bg-blue-500"></span>Root</span>
@@ -305,27 +284,7 @@ export default function App(): JSX.Element | null {
   if (mode === 'chart') {
     return (
       <div className="min-h-screen bg-gray-950 text-white flex flex-col">
-        <div className="flex flex-col border-b border-gray-800">
-          <div className="flex justify-between items-center px-4 py-3">
-            <span className="text-gray-400 text-sm font-medium">Key of {selectedKey}</span>
-          </div>
-          <KeySelector currentKey={selectedKey} onSelect={handleKeySwitch} />
-          <div className="flex justify-center py-3">
-            <button
-              className="w-1/3 py-1.5 text-sm font-medium text-blue-400 bg-blue-950 hover:bg-blue-900 rounded-lg transition-colors cursor-pointer"
-              onClick={() => { handleKeySwitch(KEY_NAMES[Math.floor(Math.random() * KEY_NAMES.length)]); }}
-            >
-              Random Key
-            </button>
-          </div>
-          <div className="flex">
-            <button className="flex-1 py-2 text-xs font-medium transition-colors text-gray-500" onClick={() => { handleModeSwitch('flashcard'); }}>Flashcard</button>
-            <button className="flex-1 py-2 text-xs font-medium transition-colors text-gray-500" onClick={() => { handleModeSwitch('fretboard'); }}>Fretboard</button>
-            <button className="flex-1 py-2 text-xs font-medium transition-colors text-gray-500" onClick={() => { handleModeSwitch('note-id'); }}>Note ID</button>
-            <button className="flex-1 py-2 text-xs font-medium transition-colors text-white border-b-2 border-white" onClick={() => { handleModeSwitch('chart'); }}>Number Map</button>
-            <button className="flex-1 py-2 text-xs font-medium transition-colors text-gray-500" onClick={() => { handleModeSwitch('study'); }}>Study</button>
-          </div>
-        </div>
+        <ModeHeader mode={mode} selectedKey={selectedKey} onKeySwitch={handleKeySwitch} onModeSwitch={handleModeSwitch} />
         <ChordChart key={selectedKey} scale={ALL_KEYS[selectedKey]} />
       </div>
     );
@@ -339,37 +298,9 @@ export default function App(): JSX.Element | null {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col">
-      <div className="flex flex-col border-b border-gray-800">
-        <div className="flex justify-between items-center px-4 py-3">
-          {mode !== 'note-id'
-            ? <span className="text-gray-400 text-sm font-medium">Key of {selectedKey}</span>
-            : <span className="text-gray-400 text-sm font-medium">Key-independent</span>
-          }
-          <span className="text-gray-400 text-sm font-medium">{answered}/{SESSION_LENGTH}</span>
-        </div>
-        {mode !== 'note-id' && (
-          <>
-            <KeySelector currentKey={selectedKey} onSelect={handleKeySwitch} />
-            <div className="flex justify-center py-3">
-              <button
-                className="w-1/3 py-1.5 text-sm font-medium text-blue-400 bg-blue-950 hover:bg-blue-900 rounded-lg transition-colors cursor-pointer"
-                onClick={() => { handleKeySwitch(KEY_NAMES[Math.floor(Math.random() * KEY_NAMES.length)]); }}
-              >
-                Random Key
-              </button>
-            </div>
-          </>
-        )}
-        <div className="flex">
-          <button className={`flex-1 py-2 text-xs font-medium transition-colors ${mode === 'flashcard' ? 'text-white border-b-2 border-white' : 'text-gray-500'}`} onClick={() => { handleModeSwitch('flashcard'); }}>Flashcard</button>
-          <button className={`flex-1 py-2 text-xs font-medium transition-colors ${mode === 'fretboard' ? 'text-white border-b-2 border-white' : 'text-gray-500'}`} onClick={() => { handleModeSwitch('fretboard'); }}>Fretboard</button>
-          <button className={`flex-1 py-2 text-xs font-medium transition-colors ${mode === 'note-id' ? 'text-white border-b-2 border-white' : 'text-gray-500'}`} onClick={() => { handleModeSwitch('note-id'); }}>Note ID</button>
-          <button className="flex-1 py-2 text-xs font-medium transition-colors text-gray-500" onClick={() => { handleModeSwitch('chart'); }}>Number Map</button>
-          <button className="flex-1 py-2 text-xs font-medium transition-colors text-gray-500" onClick={() => { handleModeSwitch('study'); }}>Study</button>
-        </div>
-      </div>
+      <ModeHeader mode={mode} selectedKey={selectedKey} answered={answered} sessionTotal={SESSION_LENGTH} onKeySwitch={handleKeySwitch} onModeSwitch={handleModeSwitch} />
 
-      <div className="flex-1 flex flex-col items-center justify-center px-4 gap-8">
+      <div className="flex-1 flex flex-col items-center justify-start pt-6 px-4 gap-8">
         {(mode === 'fretboard' || mode === 'note-id') && (
           <Fretboard
             highlight={highlight}
